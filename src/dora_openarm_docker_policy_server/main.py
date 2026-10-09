@@ -118,6 +118,10 @@ def _main_dora(io, host_shared_dir, container_shared_dir):
             metadata = {"interval": actions["interval"], "reset": request["reset"]}
             if "cutoff_hz" in actions:
                 metadata["cutoff_hz"] = actions["cutoff_hz"]
+            # The first action is the target for the observation's time, not for
+            # now; pass that time on so the executor can skip what is already past.
+            if "timestamp" in request["metadata"]:
+                metadata["observation_timestamp"] = request["metadata"]["timestamp"]
             node.send_output(
                 "actions",
                 pa.array(actions["positions"], type=pa.list_(pa.float32())),
